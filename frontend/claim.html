@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        h3 {
+            color: #ff6347; 
+            font-family: 'Arial Black', sans-serif;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); 
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        body {
+            font-family: 'Verdana', sans-serif;
+            background-color: #e0e0f8; 
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+
+        form {
+            background-color: #fff7e6;
+            padding: 25px;
+            border-radius: 10px; 
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 320px; 
+            border: 2px solid #ff6347;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        input[type="submit"] {
+            background-color: #3f87f4;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #1253eb;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .login-link a {
+            color: #007bff;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <form id="form" action="">
+        <h3>Claim</h3>
+        <input id="claim_number" type="number" placeholder="claim number">
+        <input id="policy" type="text" placeholder="policy">
+        <label for="date_of_incident">date_of_incident</label>
+        <input id="date_of_incident" type="date" placeholder="date_of_incident">
+        <input id="claim_amount" type="number" placeholder="claim_amount"><br>
+        <label for="status">Status</label>
+        <select id="status">
+            <option value="Pending">Pending</option>
+            <option value="In Process">In Process</option>
+            <option value="Approved">Approved</option>
+        </select>
+        <input id="description" type="text" placeholder="description">
+        <input type="submit" value="submit">
+    </form>
+</body>
+
+<script>
+    const baseUrl = "http://127.0.0.1:8000/insurance";
+    const form = document.getElementById("form");
+
+    const jwt = localStorage.getItem("jwt");
+    if(!jwt){
+        alert("Please login");
+        window.location.href = "login.html";
+    }
+
+    const Claim = async (event) => {
+        event.preventDefault();
+        const claim_number = document.getElementById("claim_number").value;
+        const policy = document.getElementById("policy").value;
+        const date_of_incident = document.getElementById("date_of_incident").value;
+        const claim_amount = document.getElementById("claim_amount").value;
+        const status = document.getElementById("status").value;
+        const description = document.getElementById("description").value;
+
+        if (!claim_number || !policy|| !date_of_incident|| !claim_amount|| !status|| !description) {
+            alert("Please enter all details");
+            return;
+        }
+
+    
+        try {
+            const res = await fetch(`${baseUrl}/claim/`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ claim_number, policy, date_of_incident, claim_amount, status, description })
+            })
+            if (res.ok) {
+                    const data = await res.json();
+                    alert("Claim submitted successfully!");
+                } else {
+                    const errorData = await res.json();
+                    console.error("Error in adding claim:", errorData);
+                    alert("Some issue in adding claim: " + (errorData.detail || "Unknown error"));
+                }
+            }
+         catch(err) {
+            console.error("Error in claim submission", err);
+        }
+    }
+    form.addEventListener("submit", Claim)
+</script>
+
+</html>

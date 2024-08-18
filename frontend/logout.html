@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logout</title>
+    <style>
+        .logout-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh; 
+    }
+
+        #logoutBtn {
+        background-color: #ff4d4d;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 20px;
+        }
+
+        #logoutBtn:hover {
+            background-color: #ff1a1a;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="logout-container">
+        <button id="logoutBtn">Logout</button>
+    </div>
+</body>
+<script>
+    document.getElementById("logoutBtn").addEventListener("click", async (event) => {
+        event.preventDefault();
+        const token = localStorage.getItem("jwt");
+        if (token) {
+            try {
+                const res = await fetch("http://127.0.0.1:8000/insurance/logout/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`
+                        
+                    }
+                });
+
+                if (res.ok) {
+                    localStorage.removeItem("jwt");
+                    window.location.href = "login.html";
+                } else {
+                    console.log("Failed to log out");
+                }
+            } catch (err) {
+                console.log("Error during logout:", err);
+            }
+        } else {
+            window.location.href = "login.html";
+    }
+});
+</script>
+</html>

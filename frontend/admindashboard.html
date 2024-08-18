@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insurance App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            background-color: #e9ecef;
+        }
+
+        .navbar {
+            background-color: #343a40;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar a {
+            color: #ffffff;
+            font-size: 1.15rem;
+            font-weight: 500;
+            text-decoration: none;
+            padding: 8px 15px;
+            transition: color 0.3s ease;
+        }
+
+        .navbar a:hover {
+            color: #ff6347;
+        }
+
+        .card {
+            background-color: #d1ecf1;
+            border: 1px solid #b6dcef;
+            border-radius: 10px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #343a40;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .list-group-item {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #495057;
+            border: none;
+            background-color: #e9f5f8;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Insurance App</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="userdashboard.html">User Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admindashboard.html">Admin Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="logout.html">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Active Policies</h5>
+                        <ul id="active-policies" class="list-group">
+                            <!-- List of active policies will be rendered here -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Claims Status</h5>
+                        <ul id="claims-status" class="list-group">
+                            <!-- List of claims status will be rendered here -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Payment History</h5>
+                        <ul id="payment-history" class="list-group">
+                            <!-- List of payment history will be rendered here -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Dashboard Section -->
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Admin Dashboard</h5>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <button class="btn btn-primary w-100 mb-2" onclick="location.href='company.html'"> Manage Companies </button>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-primary w-100 mb-2" onclick="location.href='policy.html'">Manage Policies</button>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-primary w-100 mb-2" onclick="location.href='claim.html'">Manage Claims</button>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-primary w-100 mb-2" onclick="location.href='payment.html'">Manage Payments</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const baseUrl = "http://127.0.0.1:8000/insurance";
+        const jwt = localStorage.getItem("jwt");
+
+        if (!jwt) {
+            alert("Please login");
+            window.location.href = "login.html";
+        }
+
+        // Function to fetch data from the backend
+        const fetchData = async () => {
+            try {
+                const [policiesRes, claimsRes, paymentsRes] = await Promise.all([
+                    fetch(`${baseUrl}/policy/`, { headers: { "Authorization": `Bearer ${jwt}` } }),
+                    fetch(`${baseUrl}/claim/`, { headers: { "Authorization": `Bearer ${jwt}` } }),
+                    fetch(`${baseUrl}/payment/`, { headers: { "Authorization": `Bearer ${jwt}` } })
+                ]);
+
+                const [policies, claims, payments] = await Promise.all([
+                    policiesRes.json(),
+                    claimsRes.json(),
+                    paymentsRes.json()
+                ]);
+
+                renderPolicies(policies);
+                renderClaims(claims);
+                renderPayments(payments);
+
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        };
+
+        const renderPolicies = (policies) => {
+            const policiesList = document.getElementById('active-policies');
+            policies.forEach(policy => {
+                const li = document.createElement('li');
+                li.className = 'list-group-item d-flex justify-content-between align-items-center';
+                li.innerHTML = `
+                    Policy #${policy.policy_number} - ${policy.company}
+                    <span>
+                        <button class="btn btn-sm btn-warning" onclick="editPolicy(${policy.id})">Edit</button> 
+                        <button class="btn btn-sm btn-danger" onclick="deletePolicy(${policy.id})">Delete</button>
+                    </span>
+                `;
+                policiesList.appendChild(li);
+            });
+        };
+
+        const renderClaims = (claims) => {
+            const claimsList = document.getElementById('claims-status');
+            claims.forEach(claim => {
+                const li = document.createElement('li');
+                li.className = 'list-group-item d-flex justify-content-between align-items-center';
+                li.innerHTML = `
+                    Claim #${claim.claim_number}: ${claim.status}
+                    <span>
+                        <button class="btn btn-sm btn-warning" onclick="editClaim(${claim.id})">Edit</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteClaim(${claim.id})">Delete</button>
+                    </span>
+                `;
+                claimsList.appendChild(li);
+            });
+        };
+
+        const renderPayments = (payments) => {
+            const paymentsList = document.getElementById('payment-history');
+            payments.forEach(payment => {
+                const li = document.createElement('li');
+                li.className = 'list-group-item d-flex justify-content-between align-items-center';
+                li.innerHTML = `
+                    Payment #${payment.payment_id}: $${payment.amount} on ${payment.payment_date}
+                    <span>
+                        <button class="btn btn-sm btn-warning" onclick="editPayment(${payment.id})">Edit</button>
+                        <button class="btn btn-sm btn-danger" onclick="deletePayment(${payment.id})">Delete</button>
+                    </span>
+                `;
+                paymentsList.appendChild(li);
+            });
+        };
+
+        const deletePolicy = async (id) => {
+            try {
+                const res = await fetch(`${baseUrl}/policy/${id}/update/`, {
+                    method: 'DELETE',
+                    headers: {
+                        "Authorization": `Bearer ${jwt}`
+                    }
+                });
+                if (res.status === 204) {
+                    alert("Policy deleted successfully");
+                    location.reload();
+                } else {
+                    alert("Failed to delete policy");
+                }
+            } catch (error) {
+                console.error('Error deleting policy:', error);
+            }
+        };
+
+        const editPolicy = (id) => {
+            window.location.href = `editPolicy.html?id=${id}`;  
+        };
+
+        const deleteClaim = async (id) => {
+            try {
+                const res = await fetch(`${baseUrl}/claim/${id}/update/`, {
+                    method: 'DELETE',
+                    headers: {
+                        "Authorization": `Bearer ${jwt}`
+                    }
+                });
+                if (res.status === 204) {
+                    alert("Claim deleted successfully");
+                    location.reload();
+                } else {
+                    alert("Failed to delete claim");
+                }
+            } catch (error) {
+                console.error('Error deleting claim:', error);
+            }
+        };
+
+        const editClaim = (id) => {
+            window.location.href = `editclaim.html?id=${id}`;  
+        };
+
+        const deletePayment = async (id) => {
+            try {
+                const res = await fetch(`${baseUrl}/payment/${id}/update/`, {
+                    method: 'DELETE',
+                    headers: {
+                        "Authorization": `Bearer ${jwt}`
+                    }
+                });
+                if (res.status === 204) {
+                    alert("Payment deleted successfully");
+                    location.reload();
+                } else {
+                    alert("Failed to delete payment");
+                }
+            } catch (error) {
+                console.error('Error deleting payment:', error);
+            }
+        };
+
+        const editPayment = (id) => {
+            window.location.href = `editpayment.html?id=${id}`;  
+        };
+
+        fetchData();
+    </script>
+</body>
+</html>

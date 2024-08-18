@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        h3 {
+            color: #ff6347; 
+            font-family: 'Arial Black', sans-serif;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); 
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        body {
+            font-family: 'Verdana', sans-serif;
+            background-color: #e0e0f8; 
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+
+        form {
+            background-color: #fff7e6;
+            padding: 25px;
+            border-radius: 10px; 
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 320px; 
+            border: 2px solid #ff6347;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        input[type="submit"] {
+            background-color: #3f87f4;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #1253eb;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .login-link a {
+            color: #007bff;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <form id="form" action="">
+        <h3>Policy</h3>
+        <input id="policy_number" type="number" placeholder="Enter Policy number">
+        <input id="company" type="text" placeholder="company">
+        <input id="User" type="text" placeholder="User">
+        <input id="policy_type" type="text" placeholder="Policy type">
+        <label for="start_date">start_date</label>
+        <input id="start_date" type="date" placeholder="date"><br>
+        <label for="end_date">end_date</label>
+        <input id="end_date" type="date" placeholder="end_date">
+        <input id="premium_amount" type="number" placeholder="premium_amount">
+        <input id="coverage_amount" type="number" placeholder="coverage_amount">
+        <input type="submit" value="Submit">
+    </form>
+</body>
+
+<script>
+    const baseUrl = "http://127.0.0.1:8000/insurance";
+    const form = document.getElementById("form");
+
+    const jwt = localStorage.getItem("jwt");
+    if(!jwt){
+        alert("Please login");
+        window.location.href = "login.html";
+    }
+
+    const Policy = async (event) => {
+        event.preventDefault();
+        const policy_number = document.getElementById("policy_number").value;
+        const company = document.getElementById("company").value;
+        const User = document.getElementById("User").value;
+        const policy_type = document.getElementById("policy_type").value;
+        const start_date = document.getElementById("start_date").value;
+        const end_date = document.getElementById("end_date").value;
+        const premium_amount = document.getElementById("premium_amount").value;
+        const coverage_amount = document.getElementById("coverage_amount").value;
+
+        if (!policy_number || !company || !User || !policy_type || !start_date || !end_date || !premium_amount || !coverage_amount) {
+            alert("Please enter all details");
+            return;
+        }
+
+    
+
+        try {
+            const res = await fetch(`${baseUrl}/policy/`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ policy_number, company, User, policy_type, start_date, end_date, premium_amount, coverage_amount })
+            })
+            if (res.ok) {
+                    const data = await res.json();
+                    alert("Policy submitted successfully!");
+                } else {
+                    const errorData = await res.json();
+                    console.error("Error in adding Policy:", errorData);
+                    alert("Some issue in adding policy: " + (errorData.detail || "Unknown error"));
+                }
+            }
+         catch(err) {
+            console.log("Error in policy submission", err)
+        }
+
+    }
+
+    form.addEventListener("submit", Policy)
+</script>
+
+</html>

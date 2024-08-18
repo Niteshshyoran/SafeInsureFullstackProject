@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <style>
+        h3 {
+            color: #ff6347; 
+            font-family: 'Arial Black', sans-serif;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); 
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        body {
+            font-family: 'Verdana', sans-serif;
+            background-color: #e0e0f8; 
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+
+        form {
+            background-color: #fff7e6;
+            padding: 25px;
+            border-radius: 10px; 
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 320px; 
+            border: 2px solid #ff6347;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        input[type="submit"] {
+            background-color: #3f87f4;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #1253eb;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .login-link a {
+            color: #007bff;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <form id="form" action="">
+        <h3>Please Register</h3>
+        <input id="username" type="text" placeholder="Enter username">
+        <input id="password" type="password" placeholder="Enter password">
+        <select id="user_type">
+            <option value="">User Type</option>
+            <option value="admin">Admin</option>
+            <option value="customer">Customer</option>
+        </select>
+        <input type="submit" value="Register">
+        <div class="login-link">
+            <p>Already registered? <a href="login.html">Click here to login</a></p>
+        </div>
+    </form>
+</body>
+
+<script>
+    const baseUrl = "http://127.0.0.1:8000/insurance";
+    const form = document.getElementById("form");
+
+    const signUp = async (event) => {
+        event.preventDefault();
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+        const user_type = document.getElementById("user_type").value;
+
+        if (!username || !password || !user_type) {
+            alert("Please enter all details");
+            return;
+        }
+
+        try {
+            const res = await fetch(`${baseUrl}/register/`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ username, user_type,  password })
+            })
+
+            const data = await res.json();
+            // console.log(data)
+            if (data?.username?.length) {
+                alert(data.username[0] + " Please login!");
+            } else {
+                alert(data.message + " Please login!");
+            }
+            window.location.href = "login.html";
+            
+        } catch (err) {
+            console.log(err, "Error in signup function")
+        }
+    }
+
+    form.addEventListener("submit", signUp)
+</script>
+
+</html>
